@@ -310,3 +310,32 @@ window.addEventListener('DOMContentLoaded', () => {
         updateCartLayout();
     }
 });
+// =======================================================
+// INTERCEPTAR NÚMERO DA MESA VIA URL (QR CODE INTELIGENTE E TRAVADO)
+// =======================================================
+window.addEventListener('DOMContentLoaded', () => {
+    // 1. Lê os parâmetros que estão na barra de endereço (ex: ?mesa=4)
+    const urlParams = new URLSearchParams(window.location.search);
+    const mesaParam = urlParams.get('mesa');
+
+    // 2. Se existir o parâmetro 'mesa' na URL, configura o select do HTML automaticamente
+    if (mesaParam) {
+        if (mesaParam.toLowerCase() === 'delivery') {
+            orderLocationSelect.value = 'delivery';
+        } else {
+            orderLocationSelect.value = `mesa-${mesaParam}`;
+        }
+        
+        // --- AQUI ESTÁ A TRAVA DE SEGURANÇA ---
+        // Bloqueia o campo de seleção para o cliente não alterar a mesa por engano
+        orderLocationSelect.disabled = true; 
+        
+        // Dá um toque visual cinza para o cliente notar que está travado na mesa certa
+        orderLocationSelect.style.backgroundColor = '#1d1d22';
+        orderLocationSelect.style.color = '#8d8d99';
+        orderLocationSelect.style.cursor = 'not-allowed';
+        
+        // Atualiza o layout para fixar a escolha
+        updateCartLayout();
+    }
+});
