@@ -286,3 +286,27 @@ sendWhatsappBtn.addEventListener('click', () => {
     // Abre a aba do WhatsApp
     window.open(urlLink, '_blank');
 });
+// =======================================================
+// INTERCEPTAR NÚMERO DA MESA VIA URL (QR CODE INTELIGENTE)
+// =======================================================
+window.addEventListener('DOMContentLoaded', () => {
+    // 1. Lê os parâmetros que estão na barra de endereço (ex: ?mesa=4)
+    const urlParams = new URLSearchParams(window.location.search);
+    const mesaParam = urlParams.get('mesa');
+
+    // 2. Se existir o parâmetro 'mesa' na URL, configura o select do HTML automaticamente
+    if (mesaParam) {
+        // Se o parâmetro for 'delivery', muda para delivery, senão monta 'mesa-X'
+        if (mesaParam.toLowerCase() === 'delivery') {
+            orderLocationSelect.value = 'delivery';
+        } else {
+            orderLocationSelect.value = `mesa-${mesaParam}`;
+        }
+        
+        // Desabilita o select para o cliente não mudar a mesa por engano se o dono quiser travar
+        // orderLocationSelect.disabled = true; 
+        
+        // Atualiza o layout do botão para refletir a mesa certa
+        updateCartLayout();
+    }
+});
