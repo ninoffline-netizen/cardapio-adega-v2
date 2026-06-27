@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Adega - Movimento do Dia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #1f2937; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 15px; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 1.6rem; color: #111827; }
+        .data-atual { font-size: 1.1rem; color: #4b5563; font-weight: 600; margin-top: 5px; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { background: #10b981; color: white; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-pdf { background: #ef4444; }
+        .btn-clear { background: #6b7280; }
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .card h3 { margin: 0 0 5px 0; font-size: 0.9rem; color: #6b7280; text-transform: uppercase; }
+        .card p { margin: 0; font-size: 1.4rem; font-weight: bold; color: #111827; }
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #e5e7eb; }
+        th { background-color: #1f2937; color: white; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f9fafb; }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; }
+            .no-print { display: none !important; }
+            th { background-color: #1f2937 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+        td { 
+        padding: 12px 15px; 
+        border-bottom: 1px solid #e5e7eb; 
+        white-space: normal;       /* Permite que o texto quebre linha se for grande */
+        word-break: break-word;    /* Força quebra de palavras longas se necessário */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-actions">
+        <div>
+            <h1><i class="fas fa-chart-line"></i> Movimento de Caixa</h1>
+            <div class="data-atual" id="data-topo">Carregando data...</div>
+        </div>
+        <div class="btn-group no-print">
+            <button class="btn btn-clear" onclick="limparCaixaDoDia()"><i class="fas fa-trash-alt"></i> Limpar Caixa</button>
+            <button class="btn btn-pdf" onclick="exportarParaPDF()"><i class="fas fa-file-pdf"></i> Salvar em PDF</button>
+        </div>
+    </div>
+
+    <div class="summary-cards">
+        <div class="card">
+            <h3>Faturamento Total</h3>
+            <p id="total-faturamento">R$ 0,00</p>
+        </div>
+        <div class="card">
+            <h3>Total de Pedidos</h3>
+            <p id="total-pedidos">0</p>
+        </div>
+        <div class="card">
+            <h3>Status do Caixa</h3>
+            <p id="pagamento-destaque">Aberto</p>
+        </div>
+    </div>
+
+    <table id="tabela-movimento">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Origem</th>
+                <th>Produtos Vendidos</th>
+                <th style="text-align: right;">Total Pedido</th>
+            </tr>
+        </thead>
+        <tbody id="corpo-tabela">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    function carregarRelatorioTela() {
+        const corpoTabela = document.getElementById("corpo-tabela");
+        let faturamentoTotal = 0;
+        corpoTabela.innerHTML = "";
+
+        // Mostra a data de hoje formatada no topo da tela (Ex: 26/06/2026)
+        const hoje = new Date().toLocaleDateString("pt-BR");
+        document.getElementById("data-topo").innerText = `Adega & Espetinho Premium | Dia: ${hoje}`;
+
+        const bancoVendas = JSON.parse(localStorage.getItem("bancoVendas")) || [];
+
+        if (bancoVendas.length === 0) {
+            corpoTabela.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #9ca3af; padding: 30px;">
+                        Nenhum pedido finalizado no sistema hoje.
+                    </td>
+                </tr>
+            `;
+            document.getElementById("total-faturamento").innerText = "R$ 0,00";
+            document.getElementById("total-pedidos").innerText = "0";
+            return;
+        }
+
+        bancoVendas.forEach(venda => {
+            faturamentoTotal += parseFloat(venda.total || 0);
+            
+            // Se a venda antiga não tiver data cadastrada, ele assume a data de hoje por segurança
+            const dataVenda = venda.data || hoje; 
+
+            const linha = `
+                <tr>
+                    <td>#${venda.id}</td>
+                    <td>${dataVenda}</td>
+                    <td>${venda.hora}</td>
+                    <td>${venda.tipo}</td>
+                    <td>${venda.produtos}</td>
+                    <td style="text-align: right; font-weight: bold;">R$ ${venda.total.toFixed(2).replace('.', ',')}</td>
+                </tr>
+            `;
+            corpoTabela.innerHTML += linha;
+        });
+
+        document.getElementById("total-faturamento").innerText = `R$ ${faturamentoTotal.toFixed(2).replace('.', ',')}`;
+        document.getElementById("total-pedidos").innerText = bancoVendas.length;
+    }
+
+    function limparCaixaDoDia() {
+        if (confirm("Tem certeza que deseja zerar o movimento de hoje? Todos os registros atuais sumirão.")) {
+            localStorage.removeItem("bancoVendas");
+            carregarRelatorioTela();
+        }
+    }
+
+    function exportarParaPDF() {
+        window.print();
+    }
+
+    window.onload = carregarRelatorioTela;
+</script>
+
+</body>
+</html>
