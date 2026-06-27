@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Adega - Movimento do Dia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; color: #1f2937; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 15px; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 1.6rem; color: #111827; }
+        .data-atual { font-size: 1.1rem; color: #4b5563; font-weight: 600; margin-top: 5px; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { background: #10b981; color: white; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-pdf { background: #ef4444; }
+        .btn-clear { background: #6b7280; }
+        
+        .summary-layout { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+        .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex: 3; min-width: 600px; }
+        .card { background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .card h3 { margin: 0 0 5px 0; font-size: 0.9rem; color: #6b7280; text-transform: uppercase; }
+        .card p { margin: 0; font-size: 1.4rem; font-weight: bold; color: #111827; }
+        
+        /* Painel de Alterar Senha */
+        .card-senha { background: #f0fdf4; border: 1px solid #bbf7d0; flex: 1; min-width: 280px; padding: 15px; border-radius: 8px; }
+        .card-senha h3 { margin: 0 0 8px 0; font-size: 0.9rem; color: #166534; text-transform: uppercase; }
+        .senha-input-group { display: flex; gap: 5px; }
+        .senha-input-group input { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; flex: 1; font-size: 0.9rem; }
+        .btn-senha { background: #16a34a; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #e5e7eb; }
+        th { background-color: #1f2937; color: white; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f9fafb; }
+        td { padding: 12px 15px; border-bottom: 1px solid #e5e7eb; white-space: normal; word-break: break-word; }
+
+        /* Login */
+        #login-screen { text-align: center; padding: 60px 20px; }
+        #login-screen i { font-size: 3.5rem; color: #1f2937; margin-bottom: 15px; }
+        #login-screen input { padding: 12px; font-size: 16px; width: 280px; border: 1px solid #d1d5db; border-radius: 6px; margin-top: 10px; outline: none; }
+        #login-screen button { padding: 12px 24px; font-size: 16px; background-color: #1f2937; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 8px; }
+        
+        #painel-conteudo { display: none; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; }
+            .no-print { display: none !important; }
+            th { background-color: #1f2937 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="login-screen">
+        <i class="fas fa-user-lock"></i>
+        <h2>Acesso Restrito ao Proprietário</h2>
+        <p>Insira a senha mestra para ler o banco de dados da Adega:</p>
+        <p style="font-size: 12px; color: #6b7280;">(A senha padrão inicial é <b>1234</b>)</p>
+        <input type="password" id="senha-mestra" placeholder="Digite a senha..." onkeypress="if(event.key === 'Enter') autenticarECarregar()">
+        <button onclick="autenticarECarregar()">Entrar</button>
+    </div>
+
+    <div id="painel-conteudo">
+        <div class="header-actions">
+            <div>
+                <h1><i class="fas fa-chart-line"></i> Movimento de Caixa</h1>
+                <div class="data-atual" id="data-topo">Carregando data...</div>
+            </div>
+            <div class="btn-group no-print">
+                <button class="btn btn-clear" onclick="limparCaixaDoDia()"><i class="fas fa-trash-alt"></i> Limpar Caixa</button>
+                <button class="btn btn-pdf" onclick="exportarParaPDF()"><i class="fas fa-file-pdf"></i> Salvar em PDF</button>
+            </div>
+        </div>
+
+        <div class="summary-layout">
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>Faturamento Total</h3>
+                    <p id="total-faturamento">R$ 0,00</p>
+                </div>
+                <div class="card">
+                    <h3>Total de Pedidos</h3>
+                    <p id="total-pedidos">0</p>
+                </div>
+                <div class="card">
+                    <h3>Status do Caixa</h3>
+                    <p id="pagamento-destaque" style="color: #10b981;">Protegido (Python)</p>
+                </div>
+            </div>
+
+            <div class="card-senha no-print">
+                <h3><i class="fas fa-key"></i> Alterar Senha</h3>
+                <div class="senha-input-group">
+                    <input type="text" id="nova-senha-campo" placeholder="Nova senha...">
+                    <button class="btn-senha" onclick="salvarNovaSenhaNoBanco()">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+        <table id="tabela-movimento">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Origem</th>
+                    <th>Produtos Vendidos</th>
+                    <th style="text-align: right;">Total Pedido</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const hoje = new Date().toLocaleDateString("pt-BR");
+    document.getElementById("data-topo").innerText = `Adega & Espetinho Premium | Dia: ${hoje}`;
+
+    // Guarda a senha na memória do navegador temporariamente após o login para validar as próximas ações
+    let senhaAutenticada = ""; 
+
+    function autenticarECarregar() {
+        const senha = document.getElementById("senha-mestra").value;
+        const corpoTabela = document.getElementById("corpo-tabela");
+        let faturamentoTotal = 0;
+
+        fetch("http://127.0.0.1:5000/api/relatorio", {
+            method: "GET",
+            headers: { "Authorization": senha }
+        })
+        .then(resposta => {
+            if (!resposta.ok) throw new Error("Senha incorreta!");
+            return resposta.json();
+        })
+        .then(bancoVendas => {
+            senhaAutenticada = senha; // Armazena a senha válida
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("painel-conteudo").style.display = "block";
+
+            corpoTabela.innerHTML = "";
+
+            if (bancoVendas.length === 0) {
+                corpoTabela.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding: 30px;">Nenhum pedido hoje.</td></tr>`;
+                document.getElementById("total-faturamento").innerText = "R$ 0,00";
+                document.getElementById("total-pedidos").innerText = "0";
+                return;
+            }
+
+            bancoVendas.forEach(venda => {
+                faturamentoTotal += parseFloat(venda.total || 0);
+                const linha = `
+                    <tr>
+                        <td>#${venda.id}</td>
+                        <td>${venda.data || hoje}</td>
+                        <td>${venda.hora}</td>
+                        <td><strong>${venda.tipo}</strong></td>
+                        <td>${venda.produtos}</td>
+                        <td style="text-align: right; font-weight: bold;">R$ ${venda.total.toFixed(2).replace('.', ',')}</td>
+                    </tr>
+                `;
+                corpoTabela.innerHTML += linha;
+            });
+
+            document.getElementById("total-faturamento").innerText = `R$ ${faturamentoTotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById("total-pedidos").innerText = bancoVendas.length;
+        })
+        .catch(erro => alert(erro.message));
+    }
+
+    // NOVA FUNÇÃO: ENVIA A NOVA SENHA DIRETO PARA O BANCO DE DADOS
+    function salvarNovaSenhaNoBanco() {
+        const novaSenha = document.getElementById("nova-senha-campo").value;
+
+        if (!novaSenha || novaSenha.trim().length < 3) {
+            alert("Digite uma senha válida com pelo menos 3 caracteres.");
+            return;
+        }
+
+        fetch("http://127.0.0.1:5000/api/alterar-senha", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": senhaAutenticada
+            },
+            body: JSON.stringify({ nova_senha: novaSenha })
+        })
+        .then(resposta => {
+            if (!resposta.ok) throw new Error("Erro ao alterar a senha.");
+            return resposta.json();
+        })
+        .then(dados => {
+            alert(dados.mensagem + " Guarde bem a sua nova senha.");
+            senhaAutenticada = novaSenha; // Atualiza o token na memória
+            document.getElementById("nova-senha-campo").value = "";
+        })
+        .catch(erro => alert(erro.message));
+    }
+
+    function limparCaixaDoDia() {
+        if (confirm("⚠️ ATENÇÃO: Deseja ZERAR o movimento no SQLite?")) {
+            fetch("http://127.0.0.1:5000/api/limpar", {
+                method: "DELETE",
+                headers: { "Authorization": senhaAutenticada }
+            })
+            .then(resposta => {
+                if (!resposta.ok) throw new Error("Erro na operação.");
+                return resposta.json();
+            })
+            .then(dados => {
+                alert(dados.mensagem);
+                autenticarECarregar();
+            })
+            .catch(erro => alert(erro.message));
+        }
+    }
+
+    function exportarParaPDF() { window.print(); }
+</script>
+</body>
+</html>

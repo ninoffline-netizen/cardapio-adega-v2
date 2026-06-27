@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adega Delivery & Mesa</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Ícones gratuitos para deixar o layout profissional -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Topo do App / Banner -->
+    <header class="app-header">
+        <div class="header-overlay">
+            <div class="status-badge"><span class="dot"></span> Aberto agora</div>
+            <h2>Adega & Espetinho Premium</h2>
+            <p><i class="fas fa-map-marker-alt"></i> Atendendo Mesas e Delivery</p>
+        </div>
+    </header>
+
+    <!-- Barra de Categorias -->
+    <!-- Barra de Categorias Atualizada -->
+    <nav class="nav-categories">
+        <button class="category-item active" data-category="todos">Todos</button>
+        <button class="category-item" data-category="cervejas">Cervejas</button>
+        <button class="category-item" data-category="drinks">Drinks</button>
+        <button class="category-item" data-category="combos">Combos</button>
+        <button class="category-item" data-category="porcoes">Comida de Buteco</button>
+        <button class="category-item" data-category="sem-alcool">Sem Álcool</button>
+    </nav>
+
+    <!-- Listagem de Produtos -->
+    <!-- Listagem de Produtos Oficial -->
+    <main class="products-list">
+        
+        <!-- === CATEGORIA: CERVEJAS === -->
+        <div class="product-item" data-category="cervejas">
+            <div class="product-img-container">
+                <img src="https://images.unsplash.com/photo-1608270586620-248524c67de9?w=150" alt="Cerveja">
+            </div>
+            <div class="product-details">
+                <h3>Fardo Amstel (12 Latas)</h3>
+                <p>Amstel Lager trincando, direto da câmara fria para sua mesa.</p>
+                <div class="product-row-price">
+                    <span class="price">R$ 48,00</span>
+                    <button class="btn-add-item" data-name="Fardo Amstel" data-price="48.00"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === CATEGORIA: DRINKS === -->
+        <div class="product-item" data-category="drinks">
+            <div class="product-img-container">
+                <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=150" alt="Caipirinha">
+            </div>
+            <div class="product-details">
+                <h3>Caipirinha de Limão Premium</h3>
+                <p>Feita na hora com cachaça artesanal selecionada, limão e muito gelo.</p>
+                <div class="product-row-price">
+                    <span class="price">R$ 18,00</span>
+                    <button class="btn-add-item" data-name="Caipirinha Limão" data-price="18.00"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === CATEGORIA: COMBOS === -->
+        <div class="product-item" data-category="combos">
+            <div class="product-img-container">
+                <img src="https://images.unsplash.com/photo-1471422645190-3446ec472fdf?w=150" alt="Combo">
+            </div>
+            <div class="product-details">
+                <h3>Combo Cavalo Branco</h3>
+                <p>1 Garrafa de Whisky Cavalo Branco + 5 Red Bull + Gelo de Coco.</p>
+                <div class="product-row-price">
+                    <span class="price">R$ 179,00</span>
+                    <button class="btn-add-item" data-name="Combo Cavalo Branco" data-price="179.00"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === CATEGORIA: PORÇÕES (COMIDA DE BUTECO) === -->
+        <div class="product-item" data-category="porcoes">
+            <div class="product-img-container">
+                <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=150" alt="Porção Calabresa">
+            </div>
+            <div class="product-details">
+                <h3>Calabresa Acebolada com Pinga</h3>
+                <p>Gorduchinha fatiada na chapa, acebolada e finalizada com um toque de cachaça. Acompanha pãozinho.</p>
+                <div class="product-row-price">
+                    <span class="price">R$ 38,00</span>
+                    <button class="btn-add-item" data-name="Porção Calabresa" data-price="38.00"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-item" data-category="porcoes">
+            <div class="product-img-container">
+                <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=150" alt="Batata Frita">
+            </div>
+            <div class="product-details">
+                <h3>Batata Frita Suprema</h3>
+                <p>Porção generosa de batata frita bem crocante, coberta com cheddar derretido e bacon salpicado.</p>
+                <div class="product-row-price">
+                    <span class="price">R$ 32,00</span>
+                    <button class="btn-add-item" data-name="Batata Suprema" data-price="32.00"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === CATEGORIA: BEBIDAS SEM ÁLCOOL / REFRI / SUCO === -->
+        <div class="product-item" data-category="sem-alcool">
+            <div class="product-img-container">
+                <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=150" alt="Refrigerante">
+            </div>
+            <div class="product-details">
+                <h3>Coca-Cola Lata 350ml</h3>
+                <p>Tradicional ou Zero, trincando de gelada.</p>
+                <div class="product-row-price">
+                    <span class="price">R$ 6,00</span>
+                    <button class="btn-add-item" data-name="Coca-Cola Lata" data-price="6.00"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-item" data-category="sem-alcool">
+            <div class="product-img-container">
+                <img src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=150" alt="Suco">
+            </div>
+            <div class="product-details">
+                <h3>Suco Natural de Laranja 500ml</h3>
+                <p>Suco puro da fruta, feito na hora. Fonte de energia natural.</p>
+                <div class="product-row-price">
+                    <span class="price">R$ 10,00</span>
+                    <button class="btn-add-item" data-name="Suco Laranja 500ml" data-price="10.00"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal do Carrinho (Invisível por padrão, JS vai abrir) -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-modal-content">
+            <div class="cart-modal-header">
+                <h3>Seu Pedido</h3>
+                <button id="close-modal-btn"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div id="cart-items-container">
+                <!-- O JavaScript vai injetar os itens aqui dentro -->
+                <p class="empty-cart-text">Seu carrinho está vazio...</p>
+            </div>
+
+            <div class="cart-modal-footer">
+                <div class="total-row">
+                    <span>Total:</span>
+                    <span id="modal-total-value">R$ 0,00</span>
+                </div>
+                
+                <!-- Campos extras para o cliente decidir Mesa ou Delivery -->
+                <div class="order-type-container">
+                    <label for="order-location">Onde você está?</label>
+                    <select id="order-location">
+                        <option value="delivery">Delivery (Entregar em Casa)</option>
+                        <option value="mesa-1">Mesa 01</option>
+                        <option value="mesa-2">Mesa 02</option>
+                        <option value="mesa-3">Mesa 03</option>
+                        <option value="mesa-4">Mesa 04</option>
+                    </select>
+                </div>
+
+                <button id="send-whatsapp-btn"><i class="fab fa-whatsapp"></i> Enviar Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Navegação Inferior Fixa (Estilo App de comida) -->
+    <footer class="bottom-nav">
+        <div class="nav-btn">
+            <i class="fas fa-store"></i>
+            <span>Cardápio</span>
+        </div>
+        <div class="nav-btn" id="open-cart-btn">
+            <div class="cart-icon-badge">
+                <i class="fas fa-shopping-basket"></i>
+                <span id="cart-badge-count">0</span>
+            </div>
+            <span>Carrinho</span>
+        </div>
+    </footer>
+
+    <!-- Nosso arquivo de lógica -->
+    <script src="js/script.js"></script>
+</body>
+</html>
