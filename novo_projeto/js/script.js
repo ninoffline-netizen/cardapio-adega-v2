@@ -268,15 +268,31 @@ if (sendWhatsappBtn) {
             let totalVendaRodada = novosItens.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
             // 2. Cria a estrutura da venda para o Relatório
+            // 2. Cria a estrutura da venda (Compatível com a tabela do SQLite)
             const novaVenda = {
-                id: Math.floor(1000 + Math.random() * 9000),
                 data: new Date().toLocaleDateString("pt-BR"),
                 hora: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
                 tipo: localizacao.includes('delivery') ? 'Delivery' : `MESA ${numeroMesa}`,
                 produtos: listaProdutosString,
-                pagamento: "A Combinar",
                 total: totalVendaRodada
             };
+
+            // 3. PONTE COM O PYTHON: Envia os dados direto para o servidor local
+            fetch("https://api-adega.onrender.com/api/vendas", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(novaVenda)
+            })
+            .then(resposta => resposta.json())
+            .then(dados => {
+                console.log("Sucesso no banco Python:", dados.mensagem);
+            })
+            .catch(erro => {
+                console.error("Erro ao conectar no servidor Python:", erro);
+                alert("Aviso: O servidor Python não respondeu, mas o pedido seguirá para o WhatsApp.");
+            });
 
             // 3. Salva no banco de dados do relatório
             let historicoVendas = JSON.parse(localStorage.getItem("bancoVendas")) || [];
